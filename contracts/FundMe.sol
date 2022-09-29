@@ -16,8 +16,11 @@ contract FundMe {
 
     address public immutable i_owner;
 
-    constructor() {
+    AggregatorV3Interface public priceFeed;
+
+    constructor(address priceFeedAddress) {
         i_owner = msg.sender;
+        priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
     function fund() public payable {
@@ -25,7 +28,7 @@ contract FundMe {
 
         // 1. How do we send ETH to this addres?
         require(
-            msg.value.getConversionRate() >= MINIMUM_USD,
+            msg.value.getConversionRate(priceFeed) >= MINIMUM_USD,
             "Didn't send enough ETH"
         ); // 1 ETH.
         funders.push(msg.sender);
