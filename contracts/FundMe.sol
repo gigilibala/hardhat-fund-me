@@ -96,7 +96,7 @@ contract FundMe {
         return s_funders[index];
     }
 
-    function getAddressToAmountFunder(address funder)
+    function getAddressToAmountFunded(address funder)
         public
         view
         returns (uint256)
