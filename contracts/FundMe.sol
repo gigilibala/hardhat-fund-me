@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 
 import './PriceConverter.sol';
 
-error FundME__NotOwner();
+error FundMe__NotOwner();
 
 /** @title A contract for getting funding
  * @author Amin Hassani
@@ -38,9 +38,8 @@ contract FundMe {
 
     modifier onlyOwner() {
         if (msg.sender != i_owner) {
-            revert FundME__NotOwner();
+            revert FundMe__NotOwner();
         }
-        require(msg.sender == i_owner, 'Sender is not the owner!');
         _;
     }
 
