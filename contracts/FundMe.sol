@@ -4,8 +4,13 @@ pragma solidity 0.8.17;
 
 import './PriceConverter.sol';
 
-error NotOwner();
+error FundME__NotOwner();
 
+/** @title A contract for getting funding
+ * @author Amin Hassani
+ * @notice This is for demo and example only
+ * @dev This implements price feed
+ */
 contract FundMe {
     using PriceConverter for uint256;
 
@@ -23,6 +28,22 @@ contract FundMe {
         priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
+    receive() external payable {
+        fund();
+    }
+
+    fallback() external payable {
+        fund();
+    }
+
+    modifier onlyOwner() {
+        if (msg.sender != i_owner) {
+            revert FundME__NotOwner();
+        }
+        require(msg.sender == i_owner, 'Sender is not the owner!');
+        _;
+    }
+
     function fund() public payable {
         // Want to be bale to set a minimum fund amount.
 
@@ -33,14 +54,6 @@ contract FundMe {
         ); // 1 ETH.
         funders.push(msg.sender);
         addressToAmountFunded[msg.sender] = msg.value;
-    }
-
-    modifier onlyOwner() {
-        if (msg.sender != i_owner) {
-            revert NotOwner();
-        }
-        require(msg.sender == i_owner, 'Sender is not the owner!');
-        _;
     }
 
     function withdraw() public onlyOwner {
@@ -57,13 +70,5 @@ contract FundMe {
 
         ) = payable(msg.sender).call{value: address(this).balance}('');
         require(callSuccess, 'call failed');
-    }
-
-    receive() external payable {
-        fund();
-    }
-
-    fallback() external payable {
-        fund();
     }
 }

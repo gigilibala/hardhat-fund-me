@@ -13,3 +13,4 @@ artifacts
 .* 
 coverage
 coverage.json
+gas-report.txt
