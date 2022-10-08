@@ -3,8 +3,10 @@
 pragma solidity 0.8.17;
 
 import './PriceConverter.sol';
+import 'hardhat/console.sol';
 
 error FundMe__NotOwner();
+error FundMe_NotEnoughEth();
 
 /** @title A contract for getting funding
  * @author Amin Hassani
@@ -29,11 +31,15 @@ contract FundMe {
     }
 
     receive() external payable {
-        fund();
+        if (msg.value > 0) {
+            fund();
+        }
     }
 
     fallback() external payable {
-        fund();
+        if (msg.value > 0) {
+            fund();
+        }
     }
 
     modifier onlyOwner() {
@@ -46,11 +52,17 @@ contract FundMe {
     function fund() public payable {
         // Want to be bale to set a minimum fund amount.
 
-        // 1. How do we send ETH to this addres?
-        require(
-            msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD,
-            "Didn't send enough ETH"
-        ); // 1 ETH.
+        // 1. How do we send ETH to this address?
+        uint256 rate = msg.value.getConversionRate(s_priceFeed);
+        console.log(
+            'Funding %s, %s against minimum of %s',
+            msg.value,
+            rate,
+            MINIMUM_USD
+        );
+        if (rate < MINIMUM_USD) {
+            revert FundMe_NotEnoughEth();
+        }
         s_funders.push(msg.sender);
         s_addressToAmountFunded[msg.sender] = msg.value;
     }
